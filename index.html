@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Humanized Ohm Meter</title>
+  <meta name="description" content="Practice reading resistor color codes. Works offline.">
+  <meta name="theme-color" content="#0f1716">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ohm Meter">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M3 12h4l2-5 3 10 3-10 2 5h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16M9 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="hud">
+    <div class="hud-stat"><span class="hud-k">Score</span><span class="hud-v" id="score">0</span></div>
+    <div class="hud-stat"><span class="hud-k">Streak</span><span class="hud-v" id="streak">0</span></div>
+    <div class="hud-stat"><span class="hud-k">Best</span><span class="hud-v" id="best">0</span></div>
+    <button class="icon-btn" id="restart" type="button" aria-label="Start a new game (resets score)">
+      <svg aria-hidden="true"><use href="#i-restart"/></svg>
+    </button>
+  </header>
+
+  <main class="screens">
+    <!-- PLAY -->
+    <section class="screen is-active" id="screen-play" aria-label="Play">
+      <div class="stage" id="stage">
+        <div class="timer" id="timer" hidden><div class="timer-fill" id="timer-fill"></div></div>
+        <div class="rz-slot">
+          <div class="rz-drop" id="rz-drop"><div class="rz-react" id="rz-react"><div class="rz-wobble" id="rz-holder"></div></div></div>
+        </div>
+        <div class="rz-shadow" id="rz-shadow"></div>
+        <div class="verdict" id="verdict" aria-hidden="true"></div>
+        <div class="points" id="points" aria-hidden="true"></div>
+      </div>
+      <p class="sr-only" id="live" aria-live="polite"></p>
+
+      <div class="panel" id="ask">
+        <div class="ask-head">
+          <h1 class="prompt">What is this resistor's value?</h1>
+          <div class="seg" role="radiogroup" aria-label="Answer mode">
+            <button type="button" role="radio" data-mode="choice" aria-checked="true">Choices</button>
+            <button type="button" role="radio" data-mode="type" aria-checked="false">Type</button>
+          </div>
+        </div>
+        <div class="choices" id="choices"></div>
+        <form class="typed" id="typed" hidden autocomplete="off">
+          <label class="sr-only" for="typed-input">Resistance value</label>
+          <input id="typed-input" inputmode="decimal" enterkeyhint="done" placeholder="e.g. 4.7 or 4k7" spellcheck="false">
+          <div class="units" role="radiogroup" aria-label="Unit">
+            <button type="button" role="radio" data-unit="mΩ" aria-checked="false">mΩ</button>
+            <button type="button" role="radio" data-unit="Ω" aria-checked="true">Ω</button>
+            <button type="button" role="radio" data-unit="kΩ" aria-checked="false">kΩ</button>
+            <button type="button" role="radio" data-unit="MΩ" aria-checked="false">MΩ</button>
+          </div>
+          <p class="typed-err" id="typed-err" role="alert"></p>
+          <button class="btn btn-primary" type="submit">Check answer</button>
+        </form>
+      </div>
+
+      <div class="panel reveal" id="reveal" hidden>
+        <div class="reveal-head">
+          <p class="reveal-verdict" id="reveal-verdict"></p>
+          <p class="reveal-value" id="reveal-value"></p>
+        </div>
+        <ol class="bands" id="bands"></ol>
+        <p class="formula" id="formula"></p>
+        <button class="btn btn-primary" type="button" id="next">Next resistor <svg aria-hidden="true"><use href="#i-next"/></svg></button>
+      </div>
+    </section>
+
+    <!-- CHART -->
+    <section class="screen" id="screen-chart" aria-label="Color code chart" hidden>
+      <h1 class="screen-title">Color code chart</h1>
+      <p class="lede">Hold the resistor so the tolerance band (the one set apart) is on the right. Read the digits left to right, then multiply.</p>
+      <div class="table-wrap">
+        <table class="chart">
+          <thead><tr><th scope="col">Color</th><th scope="col">Digit</th><th scope="col">Multiplier</th><th scope="col">Tolerance</th></tr></thead>
+          <tbody id="chart-body"></tbody>
+        </table>
+      </div>
+      <div class="howto">
+        <h2>4 bands</h2>
+        <p>digit, digit, multiplier, tolerance. <b>Yellow Violet Red Gold</b> = 47 × 100 = 4.7 kΩ ±5%.</p>
+        <h2>5 bands</h2>
+        <p>digit, digit, digit, multiplier, tolerance. <b>Brown Black Black Red Brown</b> = 100 × 100 = 10 kΩ ±1%.</p>
+        <h2>Gold and silver</h2>
+        <p>As a multiplier, gold is ×0.1 and silver is ×0.01. <b>Yellow Violet Silver</b> = 47 × 0.01 = 0.47 Ω = 470 mΩ.</p>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="screen" id="screen-settings" aria-label="Settings" hidden>
+      <h1 class="screen-title">Settings</h1>
+      <form id="settings" class="settings">
+        <fieldset>
+          <legend>Difficulty</legend>
+          <div class="row">
+            <span class="row-label" id="lbl-bands">Bands</span>
+            <div class="seg" role="radiogroup" aria-labelledby="lbl-bands" data-setting="bands">
+              <button type="button" role="radio" data-value="4">4</button>
+              <button type="button" role="radio" data-value="5">5</button>
+              <button type="button" role="radio" data-value="mixed">Mixed</button>
+            </div>
+          </div>
+          <label class="row"><span class="row-label">Milli range<small>Gold ×0.1 and silver ×0.01 multipliers</small></span><input type="checkbox" role="switch" name="milli"></label>
+          <label class="row"><span class="row-label">Kilo range<small>1 kΩ to 999 kΩ</small></span><input type="checkbox" role="switch" name="kilo"></label>
+          <label class="row"><span class="row-label">Mega range<small>1 MΩ to 99 MΩ</small></span><input type="checkbox" role="switch" name="mega"></label>
+          <div class="row row-stack">
+            <span class="row-label" id="lbl-tol">Tolerance bands<small>Keep at least one</small></span>
+            <div class="chips" id="tol-chips" role="group" aria-labelledby="lbl-tol"></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Timer</legend>
+          <label class="row"><span class="row-label">Timer mode<small>Faster answers score more</small></span><input type="checkbox" role="switch" name="timer"></label>
+          <label class="row"><span class="row-label">Seconds per resistor</span>
+            <select name="timerSecs"><option>10</option><option>15</option><option>20</option><option>30</option></select>
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend>Sound and feel</legend>
+          <label class="row"><span class="row-label">Sound effects</span><input type="checkbox" role="switch" name="sound"></label>
+          <label class="row"><span class="row-label">Volume</span><input type="range" name="volume" min="0" max="1" step="0.05"></label>
+          <label class="row"><span class="row-label">Vibration<small>Android only; iOS browsers don't support it</small></span><input type="checkbox" role="switch" name="haptics"></label>
+          <label class="row"><span class="row-label">Show color codes on bands<small>Helps with color-vision differences</small></span><input type="checkbox" role="switch" name="codes"></label>
+        </fieldset>
+        <fieldset>
+          <legend>Your stats</legend>
+          <dl class="stats" id="stats"></dl>
+          <button type="button" class="btn btn-ghost" id="reset-stats">Reset stats and high score</button>
+        </fieldset>
+        <p class="version">Humanized Ohm Meter · works offline once loaded</p>
+      </form>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="Main">
+    <button type="button" class="tab" data-screen="play" aria-current="page"><svg aria-hidden="true"><use href="#i-play"/></svg><span>Play</span></button>
+    <button type="button" class="tab" data-screen="chart"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>Chart</span></button>
+    <button type="button" class="tab" data-screen="settings"><svg aria-hidden="true"><use href="#i-settings"/></svg><span>Settings</span></button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" hidden>
+    <span>A new version is ready.</span>
+    <button type="button" class="btn btn-small" id="toast-reload">Update now</button>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
