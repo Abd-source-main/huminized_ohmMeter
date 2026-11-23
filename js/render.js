@@ -13,6 +13,12 @@ const POS = {
 };
 const BAND_W = 13;
 
+// Short labels under the bands so neighbours don't collide: ×100,000 → ×100k.
+const short = (t) => t.replace(/^×([\d,]+)$/, (m, n) => {
+  const v = Number(n.replace(/,/g, ''));
+  return `×${v >= 1e9 ? `${v / 1e9}G` : v >= 1e6 ? `${v / 1e6}M` : v >= 1e3 ? `${v / 1e3}k` : v}`;
+});
+
 const fill = (id) => (id === 'gold' ? 'url(#g-gold)' : id === 'silver' ? 'url(#g-silver)' : COLOR[id].hex);
 
 export function resistorSVG(r, { reveal = false, codes = false } = {}) {
@@ -30,7 +36,7 @@ export function resistorSVG(r, { reveal = false, codes = false } = {}) {
 
   const labels = reveal ? r.bands.map((id, i) =>
     `<line x1="${xs[i] + BAND_W / 2}" y1="91" x2="${xs[i] + BAND_W / 2}" y2="99" class="rz-tick"/>` +
-    `<text x="${xs[i] + BAND_W / 2}" y="113" class="rz-label">${info[i].text}</text>`).join('') : '';
+    `<text x="${xs[i] + BAND_W / 2}" y="113" class="rz-label">${short(info[i].text)}</text>`).join('') : '';
 
   const names = r.bands.map((id) => COLOR[id].name).join(', ');
   return `<svg viewBox="34 10 292 108" class="rz" role="img" aria-label="Resistor with ${r.bandCount} bands: ${names}">

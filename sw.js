@@ -1,6 +1,6 @@
 // Bump VERSION on every deploy. The new worker installs in the background;
 // the page shows "Update now", and only then does it take over.
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.3.0';
 const CACHE = `ohm-meter-${VERSION}`;
 // Real-life photos live in their own cache so app updates don't throw away saved photos.
 const PHOTO_CACHE = 'ohm-meter-photos';
@@ -12,6 +12,8 @@ const ASSETS = [
   './js/core.js',
   './js/render.js',
   './js/audio.js',
+  './js/finder.js',
+  './js/find-ui.js',
   './manifest.webmanifest',
   './photos/photos.json',
   './icons/icon.svg',

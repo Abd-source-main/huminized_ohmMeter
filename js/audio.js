@@ -111,6 +111,10 @@ export const sfx = {
       tone({ freq: f / 2, type: 'triangle', at: 0.35 + at, dur: d, gain: 0.2 });
     });
   },
+  detent() {
+    if (!ready()) return;
+    noise({ dur: 0.018, gain: 0.07, freq: 2600 });
+  },
   tick(urgent = false) {
     if (!ready()) return;
     tone({ freq: urgent ? 1760 : 1320, type: 'sine', dur: 0.04, gain: urgent ? 0.22 : 0.14, attack: 0.002 });

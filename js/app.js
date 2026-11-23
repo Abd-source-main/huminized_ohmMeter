@@ -4,6 +4,7 @@ import {
 } from './core.js';
 import { resistorSVG, DEFS } from './render.js';
 import { sfx, unlock, configure as configureAudio, haptic } from './audio.js';
+import { initFind } from './find-ui.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -410,6 +411,7 @@ function showScreen(name) {
     else resumeTimer();
   } else pauseTimer();
   if (name === 'settings') renderStats();
+  if (name === 'find') onFindShow();
 }
 $$('.tab').forEach((t) => t.addEventListener('click', () => { sfx.tap(); showScreen(t.dataset.screen); }));
 document.addEventListener('visibilitychange', () => {
@@ -511,6 +513,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
   }).catch(() => { /* offline-first is best effort */ });
 }
+
+/* ---------- find a resistor ---------- */
+const onFindShow = initFind({ settings, save: () => store.set(K.settings, settings), sfx, haptic });
 
 /* ---------- start ---------- */
 fillForm();
