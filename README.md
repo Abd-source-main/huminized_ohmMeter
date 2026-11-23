@@ -15,6 +15,12 @@ Switch **Simulated / Real photos** on the Play screen to practice on actual phot
 
 To add photos: put the downloaded Commons image in a folder, add an entry to `tools/photo-labels.json` (bands, optional crop/rotate, optional note), then run `python3 tools/build-photos.py tools/photo-labels.json <commons-meta.json> <image-folder>`. The photo list is fetched network-first, so new photos show up without bumping the app version.
 
+## Find a part (resistors, capacitors, inductors)
+
+The **Find** tab works for resistors, capacitors and inductors. Type the value you need (`1234`, `4k7`, `100n`, `4.7u`, `36u`, `4R7`) or drag the ruler. It shows the closest standard part (E12/E24/E96 for resistors, E6/E12/E24 for capacitors and inductors), then 2- and 3-part series/parallel combinations, fewest parts first, each with its error %. Capacitors combine the opposite way to resistors (they add in parallel), and the app handles that.
+
+**My parts** keeps a list of what you own, separately for each kind of component. Search by digits (`47` finds 4.7, 47, 470 …), by a value (`4.7k`, `100n`), or by a capacitor code (`104`), or browse by range. One tap on a tolerance adds that part. You can set how many you have (empty means plenty), add a whole kit, and export or import the list as a small JSON file. In Find, choose **My parts** to get results using only your parts, never using more pieces than you own. The list is stored on the device (`localStorage`, key `hom.parts.v1`, well under 100 KB even for a full E96 set). Export it to back it up or move it to another phone.
+
 ## Structure
 
 ```
@@ -23,6 +29,9 @@ manifest.webmanifest    PWA manifest (standalone, icons incl. maskable)
 sw.js                   service worker: versioned precache, offline, update prompt
 css/styles.css          all styles (dark bench-mat theme, safe areas, reduced motion)
 js/core.js              pure resistor math, value formatting, options, answer parsing
+js/finder.js            pure Find math: E-series, parsing, combinations (R, C, L)
+js/parts.js             My parts storage: validate, add/remove, quantities, kits, export/import
+js/find-ui.js           Find tab and My parts UI
 js/render.js            layered-SVG resistor renderer + shared gradients/filters
 js/audio.js             Web Audio sound effects + vibration
 js/app.js               game loop, screens, settings, storage, SW registration

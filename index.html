@@ -95,52 +95,88 @@
     </section>
 
     <!-- FIND -->
-    <section class="screen" id="screen-find" aria-label="Find a resistor" hidden>
-      <h1 class="screen-title">Find a resistor</h1>
-      <p class="lede">Need a value you can't buy? Enter it and see the closest standard part, plus series and parallel combinations that get closer.</p>
-      <div class="find-grid">
-        <div class="find-left">
-          <div class="find-input">
-            <label class="sr-only" for="find-value">Value you need</label>
-            <input id="find-value" inputmode="decimal" enterkeyhint="done" autocomplete="off" spellcheck="false" placeholder="e.g. 1234 or 4k7">
-            <div class="units" role="radiogroup" aria-label="Unit" id="find-units">
-              <button type="button" role="radio" data-unit="Ω" aria-checked="true">Ω</button>
-              <button type="button" role="radio" data-unit="kΩ" aria-checked="false">kΩ</button>
-              <button type="button" role="radio" data-unit="MΩ" aria-checked="false">MΩ</button>
-            </div>
-          </div>
-          <p class="find-msg" id="find-msg" role="status"></p>
-
-          <div class="gauge">
-            <button type="button" class="icon-btn gauge-step" data-step="-1" aria-label="Decrease value by 1%"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-            <div class="gauge-window">
-              <div class="gauge-track" id="gauge" tabindex="0" role="slider" aria-label="Resistance, drag or use arrow keys"
-                   aria-valuemin="1" aria-valuemax="10000000"><div class="gauge-scale" id="gauge-scale"></div></div>
-              <div class="gauge-needle" aria-hidden="true"></div>
-              <div class="gauge-readout" id="gauge-readout" aria-hidden="true"></div>
-            </div>
-            <button type="button" class="icon-btn gauge-step" data-step="1" aria-label="Increase value by 1%"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-          </div>
-
-          <div class="row find-series">
-            <span class="row-label" id="lbl-series">Parts you have<small>E12 and E24 are 5% kits; E96 is 1% precision</small></span>
-            <div class="seg" role="radiogroup" aria-labelledby="lbl-series" id="find-series">
-              <button type="button" role="radio" data-series="E12">E12</button>
-              <button type="button" role="radio" data-series="E24">E24</button>
-              <button type="button" role="radio" data-series="E96">E96</button>
-            </div>
-          </div>
-
-          <div class="find-best" id="find-best" aria-live="polite"></div>
+    <section class="screen" id="screen-find" aria-label="Find a part" hidden>
+      <h1 class="screen-title" id="find-title">Find a resistor</h1>
+      <div class="find-switches">
+        <div class="seg seg-wide" role="radiogroup" aria-label="Component" id="find-kind">
+          <button type="button" role="radio" data-kind="resistor" aria-checked="true">Resistor</button>
+          <button type="button" role="radio" data-kind="capacitor" aria-checked="false">Capacitor</button>
+          <button type="button" role="radio" data-kind="inductor" aria-checked="false">Inductor</button>
         </div>
-        <div class="find-right">
-          <h2 class="find-h2">Combinations</h2>
-          <p class="note">Fewest parts first. More parts only show up when they get closer.</p>
-          <div id="find-combos"></div>
+        <div class="seg seg-wide" role="radiogroup" aria-label="View" id="find-view">
+          <button type="button" role="radio" data-view="find" aria-checked="true">Find a value</button>
+          <button type="button" role="radio" data-view="parts" aria-checked="false">My parts <span class="count-badge" id="parts-count"></span></button>
         </div>
       </div>
-    </section>
 
+      <!-- Find a value -->
+      <div id="find-pane">
+        <p class="lede" id="find-lede"></p>
+        <div class="find-grid">
+          <div class="find-left">
+            <div class="find-input">
+              <label class="sr-only" for="find-value">Value you need</label>
+              <input id="find-value" inputmode="decimal" enterkeyhint="done" autocomplete="off" spellcheck="false">
+              <div class="units" role="radiogroup" aria-label="Unit" id="find-units"></div>
+            </div>
+            <p class="find-msg" id="find-msg" role="status"></p>
+
+            <div class="gauge">
+              <button type="button" class="icon-btn gauge-step" data-step="-1" aria-label="Decrease value by 1%"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+              <div class="gauge-window">
+                <div class="gauge-track" id="gauge" tabindex="0" role="slider" aria-label="Value, drag or use arrow keys"><div class="gauge-scale" id="gauge-scale"></div></div>
+                <div class="gauge-needle" aria-hidden="true"></div>
+                <div class="gauge-readout" id="gauge-readout" aria-hidden="true"></div>
+              </div>
+              <button type="button" class="icon-btn gauge-step" data-step="1" aria-label="Increase value by 1%"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            </div>
+
+            <div class="row find-series">
+              <span class="row-label" id="lbl-series">Search in<small id="series-hint"></small></span>
+              <div class="seg" role="radiogroup" aria-labelledby="lbl-series" id="find-series"></div>
+            </div>
+
+            <div class="find-best" id="find-best" aria-live="polite"></div>
+          </div>
+          <div class="find-right">
+            <h2 class="find-h2">Combinations</h2>
+            <p class="note">Fewest parts first. More parts only show up when they get closer.</p>
+            <div id="find-combos"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My parts -->
+      <div id="parts-pane" hidden>
+        <p class="lede" id="parts-lede"></p>
+        <div class="parts-tools">
+          <label class="sr-only" for="parts-search">Search values</label>
+          <input id="parts-search" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search">
+          <div class="row parts-row">
+            <span class="row-label" id="lbl-browse">Browse</span>
+            <div class="seg" role="radiogroup" aria-labelledby="lbl-browse" id="parts-series"></div>
+          </div>
+          <div class="decades" id="parts-decades" role="group" aria-label="Jump to a range"></div>
+          <label class="row parts-row"><span class="row-label">Show only parts I have</span><input type="checkbox" role="switch" id="parts-mine"></label>
+        </div>
+        <p class="note parts-status" id="parts-status" role="status" aria-live="polite"></p>
+        <div class="part-grid" id="parts-grid"></div>
+
+        <fieldset class="parts-manage">
+          <legend>Your list</legend>
+          <p class="note" id="parts-summary"></p>
+          <div class="manage-grid" id="parts-kits"></div>
+          <div class="manage-grid">
+            <button type="button" class="btn btn-ghost" id="parts-export">Export list</button>
+            <button type="button" class="btn btn-ghost" id="parts-import">Import from file</button>
+            <button type="button" class="btn btn-ghost" id="parts-paste">Paste a list</button>
+            <button type="button" class="btn btn-ghost btn-danger" id="parts-clear">Clear this list</button>
+          </div>
+          <input type="file" id="parts-file" accept="application/json,.json,text/plain" hidden>
+          <p class="note">Saved on this device only. Export a copy to keep a backup or move it to another phone.</p>
+        </fieldset>
+      </div>
+    </section>
     <!-- CHART -->
     <section class="screen" id="screen-chart" aria-label="Color code chart" hidden>
       <h1 class="screen-title">Color code chart</h1>
