@@ -179,6 +179,9 @@ svg { display: block; }
 .credit a { color: var(--muted); }
 .note { color: var(--muted); font-size: 14px; margin: 8px 0; }
 .note:empty { display: none; }
+.update-msg.is-err { color: var(--bad); }
+.update-msg.is-ok { color: var(--ok); }
+.settings #apply-update { margin-top: 8px; }
 .settings .btn-ghost + .note, .settings .note + .btn-ghost, .settings .btn-ghost + .btn-ghost { margin-top: 8px; }
 a.btn { text-decoration: none; }
 

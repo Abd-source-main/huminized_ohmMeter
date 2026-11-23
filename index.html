@@ -205,6 +205,13 @@
           <a class="btn btn-ghost" href="photos/CREDITS.md" target="_blank" rel="noopener">Photo credits and licenses</a>
         </fieldset>
         <fieldset>
+          <legend>App updates</legend>
+          <p class="note" id="app-version">Checking which version you have…</p>
+          <button type="button" class="btn btn-ghost" id="check-update">Check for updates</button>
+          <p class="note update-msg" id="update-status" role="status" aria-live="polite"></p>
+          <button type="button" class="btn btn-primary" id="apply-update" hidden>Restart with the new version</button>
+        </fieldset>
+        <fieldset>
           <legend>Your stats</legend>
           <dl class="stats" id="stats"></dl>
           <button type="button" class="btn btn-ghost" id="reset-stats">Reset stats and high score</button>

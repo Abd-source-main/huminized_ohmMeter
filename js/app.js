@@ -489,20 +489,115 @@ document.addEventListener('pointerdown', onGesture, { passive: true });
 document.addEventListener('keydown', onGesture);
 configureAudio(settings);
 
-/* ---------- service worker with a clean update flow ---------- */
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+/* ---------- service worker: offline cache + user-controlled updates ---------- */
+// The page never reloads on its own: a new version installs in the background
+// (fully cached, so it works offline) and only takes over when the player taps
+// "Update now" / "Restart with the new version". Score and settings live in
+// localStorage, so they survive the restart.
+const upd = { reg: null, userAsked: false, busy: false };
+const updEl = { status: $('#update-status'), check: $('#check-update'), apply: $('#apply-update'), version: $('#app-version') };
+const setUpd = (msg, kind = '') => { updEl.status.textContent = msg; updEl.status.className = `note update-msg${kind ? ` is-${kind}` : ''}`; };
+const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+
+function askVersion(worker) {
+  if (!worker) return Promise.resolve(null);
+  return Promise.race([
+    new Promise((resolve) => {
+      const ch = new MessageChannel();
+      ch.port1.onmessage = (e) => resolve(e.data?.version ?? null);
+      worker.postMessage({ type: 'GET_VERSION' }, [ch.port2]);
+    }),
+    new Promise((resolve) => setTimeout(() => resolve(null), 1500)),
+  ]);
+}
+
+function showCurrentVersion() {
+  askVersion(navigator.serviceWorker?.controller).then((v) => {
+    updEl.version.textContent = v ? `You have version ${v}. It works offline.`
+      : 'Offline support starts after the first full load. Reload once while online.';
+  });
+}
+
+function applyUpdate(worker) {
+  upd.userAsked = true;
+  setUpd('Restarting with the new version…');
+  worker.postMessage({ type: 'SKIP_WAITING' });
+}
+
+function offer(worker) {
   const toast = $('#toast');
+  toast.hidden = false;
+  $('#toast-reload').onclick = () => applyUpdate(worker);
+  updEl.apply.hidden = false;
+  updEl.apply.onclick = () => applyUpdate(worker);
+  askVersion(worker).then((v) => setUpd(
+    `Version ${v ?? 'update'} is downloaded and saved for offline use. Restart when you're ready; your score and settings are kept.`, 'ok'));
+}
+
+function waitInstalled(worker, ms) {
+  return Promise.race([
+    new Promise((resolve, reject) => {
+      const check = () => {
+        if (worker.state === 'installed' || worker.state === 'activated') resolve(worker);
+        else if (worker.state === 'redundant') reject(new Error('install failed'));
+      };
+      worker.addEventListener('statechange', check);
+      check();
+    }),
+    timeout(ms),
+  ]);
+}
+
+async function checkForUpdates() {
+  if (upd.busy) return;
+  if (!upd.reg) {
+    setUpd("Updates aren't available here. Open the app from its web address over HTTPS.", 'err');
+    return;
+  }
+  if (upd.reg.waiting) { offer(upd.reg.waiting); return; }
+  if (!navigator.onLine) {
+    setUpd("You're offline. Connect to the internet and try again. You can keep playing offline in the meantime.", 'err');
+    return;
+  }
+  upd.busy = true;
+  updEl.check.disabled = true;
+  setUpd('Checking for updates…');
+  try {
+    await Promise.race([upd.reg.update(), timeout(15000)]);
+    const w = upd.reg.installing || upd.reg.waiting;
+    if (!w) {
+      const v = await askVersion(navigator.serviceWorker.controller);
+      setUpd(`You have the latest version${v ? ` (${v})` : ''}.`, 'ok');
+    } else {
+      if (w.state !== 'installed') setUpd('Downloading the new version and saving it for offline use…');
+      await waitInstalled(w, 60000);
+      offer(w);
+    }
+    // Pick up any new real photos too (the list is fetched network-first).
+    photos.loading = null;
+    loadPhotos().catch(() => {});
+  } catch (e) {
+    setUpd(e.message === 'install failed'
+      ? "The download stopped before it finished. Nothing changed, and this version still works offline. Try again on a steadier connection."
+      : "Couldn't reach the update server. Nothing changed, and you can keep playing. Try again later.", 'err');
+  } finally {
+    upd.busy = false;
+    updEl.check.disabled = false;
+  }
+}
+
+updEl.check.addEventListener('click', () => { sfx.tap(); checkForUpdates(); });
+
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return;
+    showCurrentVersion();
+    if (!upd.userAsked || reloading) return;   // never reload unless the player asked
     reloading = true;
     location.reload();
   });
-  const offer = (worker) => {
-    toast.hidden = false;
-    $('#toast-reload').onclick = () => worker.postMessage({ type: 'SKIP_WAITING' });
-  };
   navigator.serviceWorker.register('./sw.js').then((reg) => {
+    upd.reg = reg;
     if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
     reg.addEventListener('updatefound', () => {
       const w = reg.installing;
@@ -510,8 +605,13 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w);
       });
     });
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
-  }).catch(() => { /* offline-first is best effort */ });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && navigator.onLine) reg.update().catch(() => {});
+    });
+    showCurrentVersion();
+  }).catch(() => { updEl.version.textContent = "Offline mode couldn't start in this browser."; });
+} else {
+  updEl.version.textContent = 'Offline mode and updates need the app to be opened from its web address.';
 }
 
 /* ---------- find a resistor ---------- */
