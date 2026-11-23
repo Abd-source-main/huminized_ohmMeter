@@ -9,6 +9,12 @@ A mobile-first game for practicing resistor color codes. It's a static site with
 - All sounds are synthesized with the Web Audio API, so there are no audio files.
 - High score, stats and settings are saved in `localStorage`.
 
+## Real photos mode (beta)
+
+Switch **Simulated / Real photos** on the Play screen to practice on actual photos of resistors from [Wikimedia Commons](https://commons.wikimedia.org/). Every label was checked by eye against the bands. Photos with an unreadable or ambiguous band order were left out. Each photo shows its author and license, and `photos/CREDITS.md` lists them all.
+
+To add photos: put the downloaded Commons image in a folder, add an entry to `tools/photo-labels.json` (bands, optional crop/rotate, optional note), then run `python3 tools/build-photos.py tools/photo-labels.json <commons-meta.json> <image-folder>`. The photo list is fetched network-first, so new photos show up without bumping the app version.
+
 ## Structure
 
 ```

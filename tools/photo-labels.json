@@ -1,0 +1,13 @@
+[
+ {"src": "1_kiloohm_5__axial_resistor.jpg", "title": "File:1 kiloohm 5% axial resistor.jpg", "bands": ["brown", "black", "red", "gold"]},
+ {"src": "Resistor_metal_film_0.5W_1__82R.jpg.jpg", "title": "File:Resistor metal film 0.5W 1% 82R.jpg", "bands": ["gray", "red", "black", "gold", "brown"], "crop": [0.36, 0.05, 0.64, 0.95], "note": "Gold in the 4th position is a ×0.1 multiplier: 820 × 0.1 = 82 Ω."},
+ {"src": "Metal_film_resistor.jpg.jpg", "title": "File:Metal film resistor.jpg", "bands": ["blue", "green", "black", "yellow", "brown"], "crop": [0.33, 0.0, 0.67, 1.0], "note": "The source gives the value (6.5 MΩ) but not the tolerance; the last band looks red-brown in this light and is read as brown (±1%)."},
+ {"src": "Electronic-Axial-Lead-Resistors-Array.jpg.jpg", "title": "File:Electronic-Axial-Lead-Resistors-Array.jpg", "bands": ["orange", "white", "orange", "gold"], "crop": [0.066, 0.21, 0.216, 0.79], "rotate": 90},
+ {"src": "Electronic-Axial-Lead-Resistors-Array.jpg.jpg", "title": "File:Electronic-Axial-Lead-Resistors-Array.jpg", "bands": ["yellow", "violet", "black", "gold"], "crop": [0.22, 0.21, 0.37, 0.79], "rotate": 270},
+ {"src": "Electronic-Axial-Lead-Resistors-Array.jpg.jpg", "title": "File:Electronic-Axial-Lead-Resistors-Array.jpg", "bands": ["brown", "green", "red", "gold"], "crop": [0.36, 0.21, 0.51, 0.79], "rotate": 270},
+ {"src": "Electronic-Axial-Lead-Resistors-Array.jpg.jpg", "title": "File:Electronic-Axial-Lead-Resistors-Array.jpg", "bands": ["brown", "black", "brown", "gold"], "crop": [0.493, 0.21, 0.643, 0.79], "rotate": 90},
+ {"src": "Electronic-Axial-Lead-Resistors-Array.jpg.jpg", "title": "File:Electronic-Axial-Lead-Resistors-Array.jpg", "bands": ["red", "red", "red", "gold"], "crop": [0.636, 0.21, 0.786, 0.79], "rotate": 90},
+ {"src": "Electronic-Axial-Lead-Resistors-Array.jpg.jpg", "title": "File:Electronic-Axial-Lead-Resistors-Array.jpg", "bands": ["yellow", "violet", "orange", "gold"], "crop": [0.77, 0.21, 0.92, 0.79], "rotate": 270},
+ {"src": "3_Resistors.jpg.jpg", "title": "File:3 Resistors.jpg", "bands": ["brown", "violet", "yellow", "gold", "brown"], "crop": [0.29, 0.475, 0.452, 0.745], "note": "Gold can't be a digit, so read from the brown band at the top-left end: 174 × 0.1 = 17.4 Ω."},
+ {"src": "3_Resistors.jpg.jpg", "title": "File:3 Resistors.jpg", "bands": ["brown", "blue", "white", "black", "brown"], "crop": [0.567, 0.255, 0.765, 0.555], "note": "Read from the top end: 169 × 1 = 169 Ω. Read backwards it would be 109 MΩ, which isn't a standard value."}
+]
