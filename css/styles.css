@@ -149,6 +149,36 @@ svg { display: block; }
 .timer-fill { height: 100%; background: var(--accent); transform-origin: left center; will-change: transform; }
 .timer-fill.low { background: var(--bad); }
 
+/* Real photos mode */
+.modebar { margin: 0 0 10px; }
+.seg-wide { display: flex; }
+.seg-wide button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.beta {
+  display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: .03em;
+  background: rgba(224,140,79,.18); color: #ffc79e; border: 1px solid rgba(224,140,79,.45); vertical-align: 1px;
+}
+.stage.real { height: clamp(210px, 38dvh, 340px); background: #0b1110; }
+.stage.real .rz-slot, .stage.real .rz-shadow { display: none; }
+.photo-wrap { position: absolute; inset: 0; display: grid; place-items: center; }
+.photo-wrap img { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .25s; }
+.photo-wrap img.loaded { opacity: 1; }
+.photo-wrap.enter { animation: photo-in .45s var(--ease-out) both; }
+.photo-wrap.leave { animation: leave .26s ease-in both; }
+@keyframes photo-in { from { opacity: 0; transform: translateY(-18px) scale(.97); } to { opacity: 1; transform: none; } }
+.stage.real.loading::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.05) 50%, transparent 70%) 0 0 / 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+.photo-msg { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 20px; text-align: center; color: var(--muted); }
+.credit { margin: 6px 2px 0; font-size: 12px; line-height: 1.4; color: var(--muted); overflow-wrap: anywhere; }
+.credit a { color: var(--muted); }
+.note { color: var(--muted); font-size: 14px; margin: 8px 0; }
+.note:empty { display: none; }
+.settings .btn-ghost + .note, .settings .note + .btn-ghost, .settings .btn-ghost + .btn-ghost { margin-top: 8px; }
+a.btn { text-decoration: none; }
+
 /* Panels */
 .panel { margin-top: 14px; }
 .panel[hidden] { display: none; }

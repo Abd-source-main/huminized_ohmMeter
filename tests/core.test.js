@@ -52,6 +52,16 @@ test('5-band values', () => {
   assert.equal(decodeBands(['brown', 'black', 'black', 'yellow', 'blue']).label, '1 MΩ');
 });
 
+test('3-band resistors (no tolerance band = ±20%)', () => {
+  const r = decodeBands(['yellow', 'violet', 'orange']);
+  assert.equal(r.label, '47 kΩ');
+  assert.equal(r.tolerance, 20);
+  assert.equal(breakdown(r).summary, 'Yellow = 4, Violet = 7, Orange = ×1,000 → 47,000 Ω = 47 kΩ, no tolerance band = ±20%');
+  const opts = makeOptions(r);
+  assert.equal(opts.filter((o) => o.correct).length, 1);
+  assert.equal(new Set(opts.map((o) => o.key)).size, 4);
+});
+
 test('decimalString never uses floats', () => {
   assert.equal(decimalString(47, -2), '0.47');
   assert.equal(decimalString(1, -2), '0.01');

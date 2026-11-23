@@ -94,18 +94,19 @@ export function rangeOf(sig, exp) {
 /** Build a resistor from its significand, multiplier exponent and tolerance color. */
 export function makeResistor(sig, exp, tolId, bandCount) {
   const digitCount = bandCount === 5 ? 3 : 2;
+  const threeBand = bandCount === 3;          // no tolerance band means ±20%
   const s = String(sig);
   if (s.length !== digitCount) throw new Error(`sig ${sig} needs ${digitCount} digits`);
   const digitIds = [...s].map((d) => COLORS[Number(d)].id);
   const mult = COLORS.find((c) => c.exp === exp);
   if (!mult) throw new Error(`no multiplier color for 10^${exp}`);
-  const tol = COLOR[tolId];
+  const tol = threeBand ? { tol: 20 } : COLOR[tolId];
   if (tol?.tol == null) throw new Error(`${tolId} is not a tolerance color`);
   return {
     bandCount,
     sig,
     exp,
-    bands: [...digitIds, mult.id, tolId],
+    bands: threeBand ? [...digitIds, mult.id] : [...digitIds, mult.id, tolId],
     tolerance: tol.tol,
     ohms: toOhms(sig, exp),
     label: formatValue(sig, exp),
@@ -116,17 +117,19 @@ export function makeResistor(sig, exp, tolId, bandCount) {
 /** Decode a band list back into a resistor (the inverse of makeResistor). */
 export function decodeBands(bands) {
   const bandCount = bands.length;
-  if (bandCount !== 4 && bandCount !== 5) throw new Error('need 4 or 5 bands');
-  const digits = bands.slice(0, bandCount - 2).map((id) => COLOR[id].digit);
+  if (bandCount < 3 || bandCount > 5) throw new Error('need 3, 4 or 5 bands');
+  if (bands.some((id) => !COLOR[id])) throw new Error(`unknown color in ${bands}`);
+  const n = bandCount === 5 ? 3 : 2;
+  const digits = bands.slice(0, n).map((id) => COLOR[id].digit);
   if (digits.some((d) => d == null)) throw new Error('gold/silver cannot be a digit');
   const sig = Number(digits.join(''));
-  const exp = COLOR[bands[bandCount - 2]].exp;
-  return makeResistor(sig, exp, bands[bandCount - 1], bandCount);
+  const exp = COLOR[bands[n]].exp;
+  return makeResistor(sig, exp, bands[n + 1] ?? null, bandCount);
 }
 
 /** Per-band explanation plus the formula line. */
 export function breakdown(r) {
-  const n = r.bandCount - 2;
+  const n = r.bandCount === 5 ? 3 : 2;
   const items = r.bands.map((id, i) => {
     const c = COLOR[id];
     if (i < n) return { id, name: c.name, role: `Digit ${i + 1}`, text: String(c.digit) };
@@ -137,7 +140,8 @@ export function breakdown(r) {
   const pretty = r.label;
   const value = ohms.replace(/,/g, '') === pretty ? ohms : `${ohms} = ${pretty}`;
   const parts = items.slice(0, n + 1).map((b) => `${b.name} = ${b.text}`).join(', ');
-  const summary = `${parts} → ${value}, ${items[n + 1].name} = ${items[n + 1].text}`;
+  const tolPart = items[n + 1] ? `${items[n + 1].name} = ${items[n + 1].text}` : 'no tolerance band = ±20%';
+  const summary = `${parts} → ${value}, ${tolPart}`;
   return { items, formula: `${r.sig} ${multiplierLabel(r.exp)} = ${ohms}`, value, summary };
 }
 
@@ -218,7 +222,7 @@ export function makeOptions(r, rng = Math.random, count = 4) {
   }
   let guard = 0;
   while (out.length < count && guard++ < 200) {
-    const g = generateResistor({ ...DEFAULT_SETTINGS, bands: String(r.bandCount), kilo: true, mega: true }, rng);
+    const g = generateResistor({ ...DEFAULT_SETTINGS, bands: r.bandCount === 5 ? '5' : '4', kilo: true, mega: true }, rng);
     if (seen.has(g.key)) continue;
     seen.add(g.key);
     out.push({ sig: g.sig, exp: g.exp, label: g.label, key: g.key, correct: false });

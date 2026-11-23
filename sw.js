@@ -1,7 +1,9 @@
 // Bump VERSION on every deploy. The new worker installs in the background;
 // the page shows "Update now", and only then does it take over.
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.1.0';
 const CACHE = `ohm-meter-${VERSION}`;
+// Real-life photos live in their own cache so app updates don't throw away saved photos.
+const PHOTO_CACHE = 'ohm-meter-photos';
 const ASSETS = [
   './',
   './index.html',
@@ -11,6 +13,7 @@ const ASSETS = [
   './js/render.js',
   './js/audio.js',
   './manifest.webmanifest',
+  './photos/photos.json',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -25,7 +28,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter((k) => k.startsWith('ohm-meter-') && k !== CACHE).map((k) => caches.delete(k)));
+    await Promise.all(keys.filter((k) => k.startsWith('ohm-meter-') && k !== CACHE && k !== PHOTO_CACHE).map((k) => caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -48,8 +51,9 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Assets: cache first; cache anything new that the app asks for later.
+  const isPhoto = /\/photos\/[^/]+\.jpg$/.test(new URL(req.url).pathname);
   event.respondWith((async () => {
-    const cache = await caches.open(CACHE);
+    const cache = await caches.open(isPhoto ? PHOTO_CACHE : CACHE);
     const hit = await cache.match(req, { ignoreSearch: true });
     if (hit) return hit;
     const res = await fetch(req);

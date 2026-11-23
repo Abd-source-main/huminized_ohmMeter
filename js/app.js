@@ -1,6 +1,6 @@
 import {
   COLORS, COLOR, TOLERANCE_IDS, DEFAULT_SETTINGS, generateResistor, makeOptions, breakdown,
-  parseAnswer, sameValue, pointsFor, PENALTY, multiplierLabel, toleranceLabel,
+  parseAnswer, sameValue, pointsFor, PENALTY, multiplierLabel, toleranceLabel, decodeBands,
 } from './core.js';
 import { resistorSVG, DEFS } from './render.js';
 import { sfx, unlock, configure as configureAudio, haptic } from './audio.js';
@@ -22,7 +22,7 @@ const K = { settings: 'hom.settings.v1', stats: 'hom.stats.v1', game: 'hom.game.
 const settings = store.get(K.settings, {
   ...DEFAULT_SETTINGS,
   timer: false, timerSecs: 15, answerMode: 'choice',
-  sound: true, volume: 0.7, haptics: true, codes: false,
+  sound: true, volume: 0.7, haptics: true, codes: false, play: 'sim',
 });
 const stats = store.get(K.stats, { played: 0, correct: 0, bestStreak: 0, best: 0 });
 const game = store.get(K.game, { score: 0, streak: 0 });
@@ -42,6 +42,7 @@ const el = {
   reveal: $('#reveal'), revealVerdict: $('#reveal-verdict'), revealValue: $('#reveal-value'),
   bands: $('#bands'), formula: $('#formula'), next: $('#next'),
   timer: $('#timer'), timerFill: $('#timer-fill'),
+  photoWrap: $('#photo-wrap'), photo: $('#photo'), photoMsg: $('#photo-msg'), credit: $('#credit'), prompt: $('#prompt'),
 };
 
 document.body.insertAdjacentHTML('afterbegin', DEFS);
@@ -71,21 +72,97 @@ function drawResistor(reveal = false) {
   el.holder.innerHTML = resistorSVG(state.r, { reveal, codes: settings.codes });
 }
 
+/* ---------- real photos (beta) ---------- */
+const photos = { list: [], bag: [], last: null, loading: null };
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+function loadPhotos() {
+  photos.loading ??= fetch('photos/photos.json')
+    .then((res) => { if (!res.ok) throw new Error(res.status); return res.json(); })
+    .then((data) => {
+      photos.list = data.photos.filter((p) => { try { decodeBands(p.bands); return true; } catch { return false; } });
+      $('#photo-count').textContent = `${photos.list.length} real resistor photos from Wikimedia Commons, each labeled by hand. Labels may contain mistakes; this mode is in beta.`;
+      return photos.list;
+    })
+    .catch((e) => { photos.loading = null; throw e; });
+  return photos.loading;
+}
+
+function nextPhoto() {
+  if (!photos.bag.length) {
+    photos.bag = photos.list.slice().sort(() => Math.random() - 0.5);
+    if (photos.bag.length > 1 && photos.bag.at(-1) === photos.last) photos.bag.unshift(photos.bag.pop());
+  }
+  photos.last = photos.bag.pop();
+  return photos.last;
+}
+
+function showPhoto(p) {
+  el.stage.classList.add('loading');
+  el.photo.classList.toggle('loaded', false);
+  el.photo.alt = 'Photo of a real resistor. Read its color bands.';
+  el.photo.onload = () => { el.stage.classList.toggle('loading', false); el.photo.classList.add('loaded'); sfx.land(); };
+  el.photo.onerror = () => {
+    el.stage.classList.toggle('loading', false);
+    el.photoMsg.hidden = false;
+    el.photoMsg.textContent = navigator.onLine
+      ? "This photo didn't load. Tap a choice or Next to move on."
+      : "You're offline and this photo isn't saved yet. Next time you're online, use Settings, Save all photos for offline use.";
+  };
+  el.photoMsg.hidden = true;
+  el.photo.src = `photos/${p.file}`;
+  const lic = p.licenseUrl ? `<a href="${esc(p.licenseUrl)}" target="_blank" rel="noopener">${esc(p.license)}</a>` : esc(p.license);
+  el.credit.innerHTML = `Photo: <a href="${esc(p.source)}" target="_blank" rel="noopener">${esc(p.author)}</a>, ${lic}${p.cropped ? ', cropped' : ''}`;
+}
+
+function setPlayMode(mode) {
+  settings.play = mode;
+  store.set(K.settings, settings);
+  $$('.modebar button').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.play === mode)));
+}
+
+async function switchPlay(mode) {
+  if (mode === settings.play) return;
+  if (mode === 'real') {
+    try { await loadPhotos(); } catch {
+      alert("Real photos couldn't load. Check your connection and try again.");
+      return;
+    }
+    if (!photos.list.length) return;
+  }
+  setPlayMode(mode);
+  newRound();
+}
+
 function newRound() {
-  state.r = generateResistor(settings);
+  const real = settings.play === 'real' && photos.list.length > 0;
+  state.photo = real ? nextPhoto() : null;
+  state.r = real ? decodeBands(state.photo.bands) : generateResistor(settings);
   state.options = makeOptions(state.r);
   state.answered = false;
   state.dirty = false;
-  drawResistor(false);
+
+  el.stage.classList.toggle('real', real);
+  el.photoWrap.hidden = !real;
+  el.credit.hidden = !real;
+  el.photoMsg.hidden = true;
+  el.stage.classList.toggle('loading', false);
+  el.prompt.textContent = real ? 'Read the bands. What is the value?' : "What is this resistor's value?";
+  if (real) showPhoto(state.photo);
+  else drawResistor(false);
 
   el.stage.classList.remove('ok', 'bad');
   el.verdict.className = 'verdict';
   el.points.className = 'points';
   el.react.className = 'rz-react';
-  el.drop.classList.remove('leave');
-  restartAnim(el.drop, 'enter');
-  restartAnim(el.shadow, 'enter');
-  setTimeout(() => sfx.land(), reducedMotion.matches ? 0 : 370);
+  el.drop.classList.toggle('leave', false);
+  el.photoWrap.classList.toggle('leave', false);
+  if (real) restartAnim(el.photoWrap, 'enter');
+  else {
+    restartAnim(el.drop, 'enter');
+    restartAnim(el.shadow, 'enter');
+    setTimeout(() => sfx.land(), reducedMotion.matches ? 0 : 370);
+  }
 
   el.reveal.hidden = true;
   el.ask.hidden = false;
@@ -98,8 +175,9 @@ function newRound() {
 
 function nextRound() {
   if (reducedMotion.matches) return newRound();
-  el.drop.classList.remove('enter');
-  el.drop.classList.add('leave');
+  const node = state.photo ? el.photoWrap : el.drop;
+  node.classList.toggle('enter', false);
+  node.classList.add('leave');
   setTimeout(newRound, 240);
 }
 
@@ -159,21 +237,22 @@ function answer(correct, given) {
   if (newBest) setTimeout(() => sfx.highScore(), game.streak % 5 === 0 ? 350 : 0);
   haptic(correct ? 'ok' : 'wrong', settings.haptics);
 
-  drawResistor(true);
+  if (!state.photo) drawResistor(true);
   showReveal(correct, given);
 }
 
 function showReveal(correct, given) {
   const r = state.r;
   const b = breakdown(r);
-  const n = r.bandCount - 2;
+  const n = r.bandCount === 5 ? 3 : 2;
   el.revealVerdict.textContent = correct
     ? (game.streak >= 2 ? `Correct, streak ${game.streak}` : 'Correct')
     : given === null ? "Time's up" : `You said ${given}`;
   el.revealVerdict.className = `reveal-verdict ${correct ? 'ok' : 'bad'}`;
   el.revealValue.innerHTML = `${r.label}<small>±${r.tolerance}%</small>`;
+  if (r.bandCount === 3) b.items.push({ id: null, name: 'No band', role: 'Tolerance', text: '±20%' });
   el.bands.innerHTML = b.items.map((it) =>
-    `<li><span class="sw" style="background:${swatch(it.id)}"></span>` +
+    `<li><span class="sw" style="background:${it.id ? swatch(it.id) : 'transparent'}"></span>` +
     `<span class="nm">${it.name}<span class="rl">${it.role}</span></span><span class="vl">${it.text}</span></li>`).join('');
   const digits = b.items.slice(0, n).map((it) => it.text).join('');
   el.formula.innerHTML = `${digits} ${multiplierLabel(r.exp)} → <b>${b.value}</b>`;
@@ -181,6 +260,7 @@ function showReveal(correct, given) {
   el.ask.hidden = true;
   el.reveal.hidden = false;
   restartAnim(el.reveal, 'enter');
+  if (state.photo?.note) el.formula.insertAdjacentHTML('beforeend', `<br><span class="your-answer">${esc(state.photo.note)}</span>`);
   el.live.textContent = `${correct ? 'Correct.' : 'Not quite.'} ${b.summary}`;
   el.next.focus({ preventScroll: true });
 }
@@ -268,6 +348,31 @@ $$('#ask .seg button').forEach((b) => b.addEventListener('click', () => {
 }));
 
 el.next.addEventListener('click', () => { sfx.tap(); nextRound(); });
+$$('.modebar button').forEach((b) => b.addEventListener('click', () => { sfx.tap(); switchPlay(b.dataset.play); }));
+
+$('#save-photos').addEventListener('click', async () => {
+  const status = $('#save-status');
+  const btn = $('#save-photos');
+  try {
+    await loadPhotos();
+    btn.disabled = true;
+    let done = 0, failed = 0;
+    const queue = photos.list.map((p) => `photos/${p.file}`);
+    const worker = async () => {
+      while (queue.length) {
+        const url = queue.shift();
+        try { const res = await fetch(url); if (!res.ok) failed++; } catch { failed++; }
+        done++;
+        status.textContent = `Saving photos: ${done} of ${photos.list.length}`;
+      }
+    };
+    await Promise.all([worker(), worker(), worker(), worker()]);
+    status.textContent = failed ? `Saved ${done - failed} photos. ${failed} failed; try again on a better connection.`
+      : `All ${done} photos are saved. Real photos mode now works offline.`;
+  } catch {
+    status.textContent = "Couldn't reach the photo list. Connect to the internet and try again.";
+  } finally { btn.disabled = false; }
+});
 
 $('#restart').addEventListener('click', () => {
   if (game.score > 0 && !confirm('Start a new game? Your current score resets to 0. Your best score is kept.')) return;
@@ -407,4 +512,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 /* ---------- start ---------- */
 fillForm();
 renderHud();
-newRound();
+setPlayMode(settings.play);
+if (settings.play === 'real') loadPhotos().catch(() => setPlayMode('sim')).finally(newRound);
+else newRound();
+loadPhotos().catch(() => {});
