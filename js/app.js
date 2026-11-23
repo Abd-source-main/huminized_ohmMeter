@@ -128,7 +128,10 @@ async function switchPlay(mode) {
       alert("Real photos couldn't load. Check your connection and try again.");
       return;
     }
-    if (!photos.list.length) return;
+    if (!photos.list.length) {
+      alert('Real photos are coming soon. This beta has no photos yet.');
+      return;
+    }
   }
   setPlayMode(mode);
   newRound();
