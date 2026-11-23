@@ -101,7 +101,7 @@ function showPhoto(p) {
   el.stage.classList.add('loading');
   el.photo.classList.toggle('loaded', false);
   el.photo.alt = 'Photo of a real resistor. Read its color bands.';
-  el.photo.onload = () => { el.stage.classList.toggle('loading', false); el.photo.classList.add('loaded'); sfx.land(); };
+  el.photo.onload = () => { el.photo.style.setProperty('--nat-w', `${el.photo.naturalWidth}px`); el.stage.classList.toggle('loading', false); el.photo.classList.add('loaded'); sfx.land(); };
   el.photo.onerror = () => {
     el.stage.classList.toggle('loading', false);
     el.photoMsg.hidden = false;
