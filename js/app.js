@@ -5,6 +5,7 @@ import {
 import { resistorSVG, DEFS } from './render.js';
 import { sfx, unlock, configure as configureAudio, haptic } from './audio.js';
 import { initFind } from './find-ui.js';
+import { setZoomLock } from './zoom-guard.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -23,7 +24,7 @@ const K = { settings: 'hom.settings.v1', stats: 'hom.stats.v1', game: 'hom.game.
 const settings = store.get(K.settings, {
   ...DEFAULT_SETTINGS,
   timer: false, timerSecs: 15, answerMode: 'choice',
-  sound: true, volume: 0.7, haptics: true, codes: false, play: 'sim',
+  sound: true, volume: 0.7, haptics: true, codes: false, play: 'sim', allowZoom: false,
 });
 const stats = store.get(K.stats, { played: 0, correct: 0, bestStreak: 0, best: 0 });
 const game = store.get(K.game, { score: 0, streak: 0 });
@@ -434,7 +435,7 @@ $('#tol-chips').innerHTML = TOLERANCE_IDS.map((id) =>
   `${COLOR[id].name} <span class="tol">${toleranceLabel(COLOR[id].tol)}</span></label>`).join('');
 
 function fillForm() {
-  for (const name of ['milli', 'kilo', 'mega', 'timer', 'sound', 'haptics', 'codes']) form.elements[name].checked = !!settings[name];
+  for (const name of ['milli', 'kilo', 'mega', 'timer', 'sound', 'haptics', 'codes', 'allowZoom']) form.elements[name].checked = !!settings[name];
   form.elements.timerSecs.value = String(settings.timerSecs);
   form.elements.volume.value = String(settings.volume);
   $$('input[name="tol"]', form).forEach((i) => { i.checked = settings.tolerances.includes(i.value); });
@@ -453,6 +454,7 @@ form.addEventListener('change', (e) => {
   else if (t.name === 'volume') settings.volume = Number(t.value);
   if (difficulty.includes(t.name)) state.dirty = true;
   if (t.name === 'codes' && state.r) drawResistor(state.answered);
+  if (t.name === 'allowZoom') setZoomLock(!settings.allowZoom);
   store.set(K.settings, settings);
   configureAudio(settings);
   if (t.name === 'sound' && t.checked) sfx.tap();
@@ -622,6 +624,7 @@ const safeStorage = {
 const onFindShow = initFind({ settings, save: () => store.set(K.settings, settings), sfx, storage: safeStorage });
 
 /* ---------- start ---------- */
+setZoomLock(!settings.allowZoom);
 fillForm();
 renderHud();
 setPlayMode(settings.play);

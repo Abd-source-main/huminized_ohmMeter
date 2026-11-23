@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Humanized Ohm Meter</title>
   <meta name="description" content="Practice reading resistor color codes. Works offline.">
   <meta name="theme-color" content="#0f1716">
@@ -232,6 +232,7 @@
           <label class="row"><span class="row-label">Volume</span><input type="range" name="volume" min="0" max="1" step="0.05"></label>
           <label class="row"><span class="row-label">Vibration<small>Android only; iOS browsers don't support it</small></span><input type="checkbox" role="switch" name="haptics"></label>
           <label class="row"><span class="row-label">Show color codes on bands<small>Helps with color-vision differences</small></span><input type="checkbox" role="switch" name="codes"></label>
+          <label class="row"><span class="row-label">Allow zoom<small>Off stops accidental double-tap and pinch zoom. Turn on if you need to zoom in to read.</small></span><input type="checkbox" role="switch" name="allowZoom"></label>
         </fieldset>
         <fieldset>
           <legend>Real photos <span class="beta">Beta</span></legend>
