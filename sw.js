@@ -50,6 +50,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Photo list: network first so newly added photos appear without an app update.
+  if (new URL(req.url).pathname.endsWith('/photos/photos.json')) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE);
+      try {
+        const res = await fetch(req, { cache: 'no-cache' });
+        if (res.ok) cache.put('./photos/photos.json', res.clone());
+        return res;
+      } catch {
+        return (await cache.match('./photos/photos.json')) || Response.error();
+      }
+    })());
+    return;
+  }
+
   // Assets: cache first; cache anything new that the app asks for later.
   const isPhoto = /\/photos\/[^/]+\.jpg$/.test(new URL(req.url).pathname);
   event.respondWith((async () => {

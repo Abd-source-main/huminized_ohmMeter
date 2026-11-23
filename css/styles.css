@@ -152,7 +152,7 @@ svg { display: block; }
 /* Real photos mode */
 .modebar { margin: 0 0 10px; }
 .seg-wide { display: flex; }
-.seg-wide button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.seg-wide button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
 .beta {
   display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: .03em;
   background: rgba(224,140,79,.18); color: #ffc79e; border: 1px solid rgba(224,140,79,.45); vertical-align: 1px;

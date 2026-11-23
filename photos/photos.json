@@ -1,1 +1,19 @@
-{"version": 1, "photos": []}
+{
+ "version": 1,
+ "photos": [
+  {
+   "file": "r001.jpg",
+   "bands": [
+    "brown",
+    "black",
+    "red",
+    "gold"
+   ],
+   "author": "oomlout",
+   "license": "CC BY-SA 2.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:1_kiloohm_5%25_axial_resistor.jpg",
+   "cropped": false
+  }
+ ]
+}
