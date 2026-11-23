@@ -1,0 +1,167 @@
+{
+ "version": 1,
+ "photos": [
+  {
+   "file": "r001.jpg",
+   "bands": [
+    "brown",
+    "black",
+    "red",
+    "gold"
+   ],
+   "author": "oomlout",
+   "license": "CC BY-SA 2.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:1_kiloohm_5%25_axial_resistor.jpg",
+   "cropped": false
+  },
+  {
+   "file": "r002.jpg",
+   "bands": [
+    "gray",
+    "red",
+    "black",
+    "gold",
+    "brown"
+   ],
+   "author": "J nestor",
+   "license": "CC0",
+   "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+   "source": "https://commons.wikimedia.org/wiki/File:Resistor_metal_film_0.5W_1%25_82R.jpg",
+   "cropped": true,
+   "note": "Gold in the 4th position is a ×0.1 multiplier: 820 × 0.1 = 82 Ω."
+  },
+  {
+   "file": "r003.jpg",
+   "bands": [
+    "blue",
+    "green",
+    "black",
+    "yellow",
+    "brown"
+   ],
+   "author": "Haragayato, cropd by hidro.",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+   "source": "https://commons.wikimedia.org/wiki/File:Metal_film_resistor.jpg",
+   "cropped": true,
+   "note": "The source gives the value (6.5 MΩ) but not the tolerance; the last band looks red-brown in this light and is read as brown (±1%)."
+  },
+  {
+   "file": "r004.jpg",
+   "bands": [
+    "orange",
+    "white",
+    "orange",
+    "gold"
+   ],
+   "author": "Evan-Amos",
+   "license": "Public domain",
+   "licenseUrl": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronic-Axial-Lead-Resistors-Array.jpg",
+   "cropped": true
+  },
+  {
+   "file": "r005.jpg",
+   "bands": [
+    "yellow",
+    "violet",
+    "black",
+    "gold"
+   ],
+   "author": "Evan-Amos",
+   "license": "Public domain",
+   "licenseUrl": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronic-Axial-Lead-Resistors-Array.jpg",
+   "cropped": true
+  },
+  {
+   "file": "r006.jpg",
+   "bands": [
+    "brown",
+    "green",
+    "red",
+    "gold"
+   ],
+   "author": "Evan-Amos",
+   "license": "Public domain",
+   "licenseUrl": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronic-Axial-Lead-Resistors-Array.jpg",
+   "cropped": true
+  },
+  {
+   "file": "r007.jpg",
+   "bands": [
+    "brown",
+    "black",
+    "brown",
+    "gold"
+   ],
+   "author": "Evan-Amos",
+   "license": "Public domain",
+   "licenseUrl": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronic-Axial-Lead-Resistors-Array.jpg",
+   "cropped": true
+  },
+  {
+   "file": "r008.jpg",
+   "bands": [
+    "red",
+    "red",
+    "red",
+    "gold"
+   ],
+   "author": "Evan-Amos",
+   "license": "Public domain",
+   "licenseUrl": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronic-Axial-Lead-Resistors-Array.jpg",
+   "cropped": true
+  },
+  {
+   "file": "r009.jpg",
+   "bands": [
+    "yellow",
+    "violet",
+    "orange",
+    "gold"
+   ],
+   "author": "Evan-Amos",
+   "license": "Public domain",
+   "licenseUrl": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Electronic-Axial-Lead-Resistors-Array.jpg",
+   "cropped": true
+  },
+  {
+   "file": "r010.jpg",
+   "bands": [
+    "brown",
+    "violet",
+    "yellow",
+    "gold",
+    "brown"
+   ],
+   "author": "Afrank99",
+   "license": "CC BY-SA 2.5",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+   "source": "https://commons.wikimedia.org/wiki/File:3_Resistors.jpg",
+   "cropped": true,
+   "note": "Gold can't be a digit, so read from the brown band at the top-left end: 174 × 0.1 = 17.4 Ω."
+  },
+  {
+   "file": "r011.jpg",
+   "bands": [
+    "brown",
+    "blue",
+    "white",
+    "black",
+    "brown"
+   ],
+   "author": "Afrank99",
+   "license": "CC BY-SA 2.5",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+   "source": "https://commons.wikimedia.org/wiki/File:3_Resistors.jpg",
+   "cropped": true,
+   "note": "Read from the top end: 169 × 1 = 169 Ω. Read backwards it would be 109 MΩ, which isn't a standard value."
+  }
+ ]
+}
