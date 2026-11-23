@@ -615,7 +615,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 }
 
 /* ---------- find a resistor ---------- */
-const onFindShow = initFind({ settings, save: () => store.set(K.settings, settings), sfx, haptic });
+const safeStorage = {
+  getItem(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  setItem(k, v) { localStorage.setItem(k, v); },   // parts.js catches a full or blocked store
+};
+const onFindShow = initFind({ settings, save: () => store.set(K.settings, settings), sfx, storage: safeStorage });
 
 /* ---------- start ---------- */
 fillForm();

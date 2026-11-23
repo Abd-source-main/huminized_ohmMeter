@@ -396,7 +396,9 @@ select { min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px sol
   position: absolute; top: 4px; left: 50%; transform: translateX(-50%); pointer-events: none;
   font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; color: #ffd9bd; white-space: nowrap;
 }
-.find-series { border-bottom: 0; margin-top: 6px; }
+.find-series { border-bottom: 0; margin-top: 6px; flex-wrap: wrap; }
+.find-series .seg { flex: 1 1 250px; }
+.find-series .seg button { flex: 1; white-space: nowrap; padding: 0 8px; }
 
 .best-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 14px 14px 12px; }
 .best-k { margin: 0; color: var(--muted); font-size: 14px; }
@@ -438,6 +440,75 @@ select { min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px sol
   .find-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
   .find-input { grid-template-columns: minmax(0, 1fr) 220px; }
   .sch { width: 120px; }
+}
+
+
+/* ---------- Find: component switch + My parts ---------- */
+.find-switches { display: grid; gap: 8px; margin: 4px 0 14px; }
+.find-switches .seg-wide button { min-height: 42px; }
+.count-badge {
+  display: inline-block; min-width: 20px; padding: 0 6px; border-radius: 10px; margin-left: 2px;
+  background: rgba(224,140,79,.2); color: #ffd0ad; font-size: 12px; line-height: 20px; font-variant-numeric: tabular-nums;
+}
+.count-badge:empty { display: none; }
+.best-code { margin: 10px 0 2px; color: var(--muted); font-size: 14px; }
+.best-code b { color: var(--text); font-size: 18px; letter-spacing: .04em; margin: 0 2px; }
+
+.parts-tools { display: grid; gap: 4px; }
+#parts-search {
+  width: 100%; min-width: 0; height: 52px; padding: 0 16px; border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--surface); font-size: 18px;
+}
+#parts-search:focus { outline: none; border-color: var(--accent); }
+#parts-search::placeholder { color: #6f817b; }
+.parts-row { border-bottom: 0; min-height: 50px; }
+.decades { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: thin; }
+.decades.is-off { opacity: .45; }
+.decade {
+  flex: none; min-height: 40px; padding: 0 12px; border-radius: 20px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--muted); font-size: 14px; font-weight: 600; white-space: nowrap;
+  transition: background-color .15s, color .15s, border-color .15s;
+}
+.decade[aria-pressed="true"] { border-color: var(--accent); color: #ffd9bd; background: rgba(224,140,79,.14); }
+.parts-status { min-height: 1.4em; }
+
+.part-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 10px; align-items: start; }
+.part-card {
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 10px 12px 12px;
+  transition: border-color .15s, background-color .15s;
+}
+.part-card.is-owned { border-color: rgba(224,140,79,.6); background: linear-gradient(180deg, rgba(224,140,79,.08), transparent 70%), var(--surface); }
+.part-card.is-custom { border-style: dashed; }
+.part-top { display: flex; align-items: center; gap: 10px; min-height: 30px; }
+.part-v { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.part-code { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+.mini-bands { display: inline-flex; gap: 3px; margin-left: auto; padding: 4px 6px; border-radius: 6px; background: #e4cfa4; }
+.mini-bands i { display: block; width: 5px; height: 16px; border-radius: 1px; }
+.part-note { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.tols { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 6px; margin-top: 8px; }
+.tol {
+  min-height: 44px; min-width: 0; padding: 0 4px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--muted); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums;
+  transition: background-color .15s, color .15s, border-color .15s;
+}
+.tol:hover { border-color: var(--muted); color: var(--text); }
+.tol[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.qty { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.qty input {
+  width: 92px; height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg);
+  font-size: 15px; font-variant-numeric: tabular-nums;
+}
+.qty input::placeholder { color: #8fa39d; }
+.parts-manage { margin-top: 18px; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 14px 12px; background: var(--surface); }
+.parts-manage legend { padding: 0 6px; font-weight: 700; font-size: 15px; }
+.manage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 8px; margin-top: 8px; }
+.manage-grid .btn { width: 100%; font-size: 15px; }
+.btn-danger { color: #ffc4bd; border-color: rgba(240,106,95,.45); }
+.sch .cap { stroke: var(--accent); stroke-width: 2.2; }
+.sch .coil { stroke: var(--accent); stroke-width: 1.8; fill: none; }
+.sch .gap { fill: var(--surface); stroke: none; }
+@media (min-width: 900px) {
+  .find-switches { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); max-width: 860px; }
 }
 
 /* ---------- Tablet: one column, more room ---------- */
