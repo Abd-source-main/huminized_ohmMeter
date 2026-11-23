@@ -51,7 +51,7 @@ Service workers need `http://localhost` or HTTPS. Opening `index.html` directly 
 
 All paths are relative, so the app works under that `/<repo-name>/` subpath without any changes.
 
-**Shipping an update:** bump `VERSION` at the top of `sw.js` (e.g. `v1.0.1`) and push. Open copies of the app download the new version in the background and show an **Update now** button. Without the bump, installed copies keep serving the old cached files.
+**Shipping an update:** bump `VERSION` at the top of `sw.js` (e.g. `v1.0.1`) and push. Open copies of the app download the new version in the background and show an **Update now** button. Players can also tap **Settings → Check for updates**: it downloads the new version, saves it for offline use, and only switches over when they tap **Restart with the new version**. If they're offline or the server can't be reached, they get a message and keep playing the version they have. The app never reloads on its own. Without the bump, installed copies keep serving the old cached files.
 
 ## Install it
 
