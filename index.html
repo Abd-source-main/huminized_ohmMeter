@@ -132,7 +132,7 @@
             </div>
 
             <div class="row find-series">
-              <span class="row-label" id="lbl-series">Search in<small id="series-hint"></small></span>
+              <span class="row-label"><span class="label-line"><span id="lbl-series">Search in</span><button type="button" class="info-btn" data-info="series" aria-haspopup="dialog" aria-label="What are E-series values?"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.3" fill="currentColor"/></svg></button></span><small id="series-hint"></small></span>
               <div class="seg" role="radiogroup" aria-labelledby="lbl-series" id="find-series"></div>
             </div>
 
@@ -153,7 +153,7 @@
           <label class="sr-only" for="parts-search">Search values</label>
           <input id="parts-search" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search">
           <div class="row parts-row">
-            <span class="row-label" id="lbl-browse">Browse</span>
+            <span class="row-label"><span class="label-line"><span id="lbl-browse">Browse</span><button type="button" class="info-btn" data-info="series" aria-haspopup="dialog" aria-label="What are E-series values?"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.3" fill="currentColor"/></svg></button></span><small id="browse-hint"></small></span>
             <div class="seg" role="radiogroup" aria-labelledby="lbl-browse" id="parts-series"></div>
           </div>
           <div class="decades" id="parts-decades" role="group" aria-label="Jump to a range"></div>
@@ -264,6 +264,14 @@
     <button type="button" class="tab" data-screen="chart"><svg aria-hidden="true"><use href="#i-chart"/></svg><span>Chart</span></button>
     <button type="button" class="tab" data-screen="settings"><svg aria-hidden="true"><use href="#i-settings"/></svg><span>Settings</span></button>
   </nav>
+
+  <dialog class="info-dialog" id="series-info" aria-labelledby="series-info-title">
+    <div class="info-body">
+      <h2 id="series-info-title" tabindex="-1" autofocus></h2>
+      <div id="series-info-content"></div>
+      <form method="dialog"><button class="btn btn-primary" value="close">Got it</button></form>
+    </div>
+  </dialog>
 
   <div class="toast" id="toast" role="status" hidden>
     <span>A new version is ready.</span>
