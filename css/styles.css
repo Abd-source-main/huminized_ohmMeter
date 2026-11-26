@@ -516,6 +516,48 @@ select { min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px sol
   .find-switches { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); max-width: 860px; }
 }
 
+
+/* ---------- E-series info button + dialog ---------- */
+.label-line { display: inline-flex; align-items: center; gap: 4px; }
+.info-btn {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; margin: -8px 0; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--accent); transition: background-color .15s;
+}
+.info-btn:hover { background: var(--surface-2); }
+.info-btn svg { width: 20px; height: 20px; }
+.info-dialog {
+  width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 0; overflow: auto;
+  border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.info-dialog::backdrop { background: rgba(5,10,9,.7); }
+.info-dialog[open] { animation: rise .2s var(--ease-out); }
+.info-body { padding: 20px 20px 18px; }
+.info-body h2 { margin: 0 0 10px; font-size: 20px; line-height: 1.25; }
+.info-body p { margin: 0 0 10px; color: var(--muted); max-width: 60ch; }
+.info-body p b { color: var(--text); }
+.info-body .table-wrap { margin: 6px 0 14px; }
+.info-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.info-table th, .info-table td { padding: 8px 9px; text-align: left; vertical-align: top; }
+.info-table thead th { font-size: 12px; color: var(--muted); font-weight: 600; background: var(--bg); }
+.info-table tbody tr { border-top: 1px solid var(--line); }
+.info-table tbody th { font-weight: 800; color: #ffd9bd; }
+.info-body .info-k { margin-bottom: 4px; color: var(--text); font-size: 14px; font-weight: 600; }
+.info-body .info-vals { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.info-vals span {
+  min-width: 38px; padding: 3px 6px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg);
+  text-align: center; font-size: 13px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums;
+}
+.info-vals span.is-new { border-color: rgba(224,140,79,.55); color: #ffd9bd; }
+.info-body form { margin-top: 14px; }
+.info-body h2:focus { outline: none; }
+@media (max-width: 480px) {
+  .info-body { padding: 18px 14px 14px; }
+  .info-table { font-size: 13px; }
+  .info-table th, .info-table td { padding: 7px 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .info-dialog[open] { animation: none; } }
+
 /* ---------- Tablet: one column, more room ---------- */
 @media (min-width: 640px) {
   .app { max-width: 720px; }

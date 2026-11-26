@@ -8,7 +8,7 @@ import { COLOR } from './core.js';
 import { resistorSVG } from './render.js';
 import {
   KINDS, seriesValues, nearestIndex, findCombos, describe, asResistor, formatAmount, formatError,
-  parseValue, markingCode, makeValue, LAYOUT_NAME,
+  parseValue, markingCode, makeValue, LAYOUT_NAME, SERIES,
 } from './finder.js';
 import {
   loadInventory, saveInventory, togglePart, ownedTols, setQty, ownedValues, addKit, KITS, exportInventory,
@@ -117,12 +117,64 @@ export function initFind({ settings, save, sfx, storage }) {
     requestAnimationFrame(() => setGauge(cur().value));
   }
 
+  const HINT = {
+    resistor: 'Standard values you can buy. E24 is the usual 5% kit.',
+    capacitor: 'Standard values you can buy. E6 and E12 are the common ones.',
+    inductor: 'Standard values you can buy. E12 is the most common.',
+  };
   function seriesHint() {
-    const k = K();
-    el.seriesHint.textContent = cur().series === 'mine'
-      ? `Only the ${PLURAL[f.kind]} in your list`
-      : `${k.series.map((s) => `${s} ±${k.seriesTol[s]}%`).join(' · ')}`;
+    el.seriesHint.textContent = cur().series === 'mine' ? `Only the ${PLURAL[f.kind]} in your list.` : HINT[f.kind];
   }
+
+  /* ----- "What are E-series?" explainer ----- */
+  const SERIES_INFO = {
+    resistor: [
+      ['E12', '±10% (often sold as ±5%)', 'You have a small or basic kit.'],
+      ['E24', '±5%', 'You have a standard 5% carbon-film kit. Most hobby kits are this.'],
+      ['E96', '±1%', 'You use 1% metal-film parts, for accurate circuits.'],
+    ],
+    capacitor: [
+      ['E6', '±20%', 'Electrolytic and basic ceramic capacitors. Most big values only come in E6.'],
+      ['E12', '±10%', 'Ceramic and film capacitors. A good default for small values.'],
+      ['E24', '±5%', 'Precision film or C0G ceramics, for filters and timing.'],
+    ],
+    inductor: [
+      ['E6', '±20%', 'Power inductors and chokes.'],
+      ['E12', '±10%', 'Most fixed inductors. A good default.'],
+      ['E24', '±5%', 'Precision RF inductors.'],
+    ],
+  };
+  const decadeDigits = (s) => SERIES[s].map((n) => (String(n).length === 2 ? `${String(n)[0]}.${String(n)[1]}` : `${String(n)[0]}.${String(n).slice(1)}`));
+  function openSeriesInfo() {
+    const kind = f.kind;
+    const k = K();
+    const unit = k.ladder.find((x) => x[0] === 0)?.[1] ?? '';
+    const [s0, s1] = k.series;
+    const first = decadeDigits(s0);
+    const names = k.series.slice(0, -1).join(', ') + ' and ' + k.series.at(-1);
+    $('#series-info-title').textContent = `What are ${names}?`;
+    $('#series-info-content').innerHTML = `
+      <p>Shops don't sell every value. ${PLURAL[kind][0].toUpperCase() + PLURAL[kind].slice(1)} are made in standard lists called <b>E-series</b>.
+        The number is how many values the list has in each step of ten: for example between 10 and 100 ${unit}. The same values then repeat ×10, ×100, and so on.</p>
+      <p>More values means a single part lands closer to what you need, but those parts are more precise and cost more.</p>
+      <div class="table-wrap"><table class="info-table">
+        <thead><tr><th scope="col">Series</th><th scope="col">Values per ×10</th><th scope="col">Usual tolerance</th><th scope="col">Pick it if…</th></tr></thead>
+        <tbody>${SERIES_INFO[kind].map(([s, tol, use]) => `<tr><th scope="row">${s}</th><td>${s.slice(1)}</td><td>${tol}</td><td>${use}</td></tr>`).join('')}</tbody>
+      </table></div>
+      <p class="info-k">One step of ten in ${s0} (×1, ×10, ×100 …):</p>
+      <p class="info-vals">${first.map((v) => `<span>${v}</span>`).join('')}</p>
+      <p class="info-k">${s1} adds the values in between (highlighted):</p>
+      <p class="info-vals">${decadeDigits(s1).map((v) => `<span${first.includes(v) ? '' : ' class="is-new"'}>${v}</span>`).join('')}</p>
+      <p><b>My parts</b> skips the standard lists and searches only the ${PLURAL[kind]} you've added to your list.</p>
+      <p class="info-k">Not sure? Use ${k.defaultSeries}.</p>`;
+    const dlg = $('#series-info');
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+    // Start at the top with the title focused (not the "Got it" button at the bottom).
+    dlg.scrollTop = 0;
+    $('#series-info-title').focus({ preventScroll: true });
+  }
+  $$('[data-info="series"]').forEach((b) => b.addEventListener('click', () => { sfx.tap(); openSeriesInfo(); }));
+  $('#series-info').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 
   function compactLabel(v) {
     const L = K().ladder;
@@ -349,6 +401,7 @@ export function initFind({ settings, save, sfx, storage }) {
     el.pLede.textContent = `Tap a tolerance on a card to add that ${NOUN[f.kind]} to your list. Then pick "My parts" in Find to search only what you own.`;
     el.search.placeholder = { resistor: 'Search: 47, 4.7k, 4k7, 220', capacitor: 'Search: 47, 100n, 4.7u, 104', inductor: 'Search: 47, 10u, 4R7, 2.2m' }[f.kind];
     el.pSeries.innerHTML = k.series.map((s) => `<button type="button" role="radio" data-series="${s}">${s}</button>`).join('');
+    $('#browse-hint').textContent = `Which standard list of ${NOUN[f.kind]} values to show.`;
     setRadio(el.pSeries, 'series', cur().browse);
     el.mine.checked = !!cur().mine;
     const start = Math.floor(Math.log10(k.min));
